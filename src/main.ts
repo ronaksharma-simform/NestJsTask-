@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from './pipes/validationPipe.pipe';
 import cookieParser from 'cookie-parser' 
 import cors from 'cors'
+import { LoggerInterceptor } from './utils/logger.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['debug', 'error', 'verbose', 'log'],
@@ -14,6 +15,7 @@ async function bootstrap() {
     
   }))
   app.use(cookieParser());
+  app.useGlobalInterceptors(new LoggerInterceptor())
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('Social Media Application')

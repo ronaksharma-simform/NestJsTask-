@@ -27,8 +27,10 @@ export class AuthService {
     return this.userRepository.find();
   }
   async loginUser(loginData:LoginUserDto ) : Promise<UserDTO> {
+    console.log(loginData)
     const user = await this.userRepository.findOne({ where: { username: loginData.username } })
     if (!user) {
+      console.log(user)
       throw new BadRequestException();
     }
     const isPasswordValid  = this.hashService.comparePassword(loginData.password, user.password);
