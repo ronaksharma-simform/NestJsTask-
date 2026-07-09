@@ -1,0 +1,38 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto, LoginUserDto, UserDTO } from './dto/user.dto';
+import { Repository } from 'typeorm';
+import { DeleteResult } from 'typeorm/browser';
+import { HashService } from '../utils/hash.services';
+@Injectable()
+export class AuthService {
+  constructor(
+    @InjectRepository(UserDTO) private userRepository: Repository<UserDTO>,
+    private hashService: HashService,
+  ) {}
+  async registerUser(userData: CreateUserDto): Promise<UserDTO> {
+    const hashedPassword = await this.hashService.hashPassword(
+      userData.password,
+    );
+    userData.password = hashedPassword;
+    return this.userRepository.save(userData);
+  }
+  async getUser(id: string): Promise<UserDTO | null> {
+    return this.userRepository.findOneBy({ id });
+  }
+  async deleteUser(id: string): Promise<DeleteResult> {
+    return this.userRepository.delete({ id: id });
+  }
+  async getAllUser(): Promise<UserDTO[]> {
+    return this.userRepository.find();
+  }
+  async loginUser(loginData:LoginUserDto ) : Promise<UserDTO> {
+    const user = await this.userRepository.findOne({ where: { username: loginData.username } })
+    if (!user) {
+      throw new BadRequestException();
+    }
+    const isPasswordValid  = this.hashService.comparePassword(loginData.password, user.password);
+    if(!isPasswordValid) throw new BadRequestException()
+    return user;
+  }
+}
