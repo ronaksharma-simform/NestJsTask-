@@ -10,9 +10,9 @@ import { PostModule } from './posts/post.module';
 import { APP_PIPE } from '@nestjs/core';
 import { UploadService } from './utils/fileupload.service';
 import { AuthMiddleware } from './utils/auth.middleware';
-import { JwtModule } from '@nestjs/jwt';
 import { AppJwtModule } from './jwt/jwt.module';
 import path from 'path';
+import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [ConfigModule.forRoot({
   }),TypeOrmModule.forRoot({
@@ -25,17 +25,22 @@ import path from 'path';
     entities:[UserDTO,PostDTO],
     synchronize:true
 
-  }) ,AuthModuleModule,PostModule,AppJwtModule ],
+  }) ,AppJwtModule,AuthModuleModule,PostModule, BullModule.forRoot({
+    connection:{
+      host:"localhost",
+      port:6379
+    }
+  }) ],
   controllers: [AppController],
   providers: [AppService,UploadService],
 })
 export class AppModule implements NestModule{
    configure(consumer: MiddlewareConsumer) {
-    //  consumer.apply(AuthMiddleware).exclude({
-    //   path:"/auth/*path",method:RequestMethod.ALL
-    //  },{
-    //   path:"/auth/",method:RequestMethod.ALL
-    //  }).forRoutes("/");
+     consumer.apply(AuthMiddleware).exclude({
+      path:"/auth/*path",method:RequestMethod.ALL
+     },{
+      path:"/auth/",method:RequestMethod.ALL
+     }).forRoutes("/");
    }
 }
 

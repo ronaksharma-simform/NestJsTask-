@@ -5,9 +5,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { HashService } from '../utils/hash.services';
 import { AppJwtModule } from '../jwt/jwt.module';
-import { JwtModule } from '@nestjs/jwt';
 @Module({
-    imports:[TypeOrmModule.forFeature([UserDTO])],
+    imports:[TypeOrmModule.forFeature([UserDTO]),AppJwtModule],
     providers:[AuthService,HashService],
     controllers:[AuthController],
     exports:[AuthService]

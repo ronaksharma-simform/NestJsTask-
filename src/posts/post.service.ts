@@ -3,16 +3,19 @@ import { PostDTO } from './dto/post.dto';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { UserDTO } from '../auth/dto/user.dto';
-
+import {Queue} from 'bullmq'
 @Injectable()
 export class PostService {
+  public imageUploadQueue: Queue;
   constructor(
     @InjectRepository(PostDTO)
     private readonly postRepository: Repository<PostDTO>,
 
     @InjectRepository(UserDTO)
     private readonly userRepository: Repository<UserDTO>,
-  ) {}
+  ) {
+    this.imageUploadQueue = new Queue("image-upload")
+  }
 
   async createPost(postBody: PostDTO) {
     if (postBody.user && (postBody.user as any).id) {
