@@ -1,46 +1,91 @@
-import { MiddlewareConsumer, Module, NestModule, Post, Req, RequestMethod, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  Post,
+  Req,
+  RequestMethod,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
-import {TypeOrmModule} from "@nestjs/typeorm"
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserDTO } from './auth/dto/user.dto';
 import { AuthModuleModule } from './auth/auth.module';
 import { PostDTO } from './posts/dto/post.dto';
 import { PostModule } from './posts/post.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { UploadService } from './utils/fileupload.service';
 import { AuthMiddleware } from './utils/auth.middleware';
 import { AppJwtModule } from './jwt/jwt.module';
 import path from 'path';
 import { BullModule } from '@nestjs/bullmq';
+import { config } from 'process';
+import { ImageDTO } from './posts/dto/image.dto';
+import {createKeyv} from '@keyv/redis'
+import {CacheModule,CacheInterceptor} from '@nestjs/cache-manager'
+import { CommentDTO } from './comments/dto/comment.dto';
 @Module({
-  imports: [ConfigModule.forRoot({
-  }),TypeOrmModule.forRoot({
-    type:'postgres',
-    host:'localhost',
-    port:5432,
-    username:'postgres',
-    password:'Simform@123',
-    database:"SocialMedia",
-    entities:[UserDTO,PostDTO],
-    synchronize:true
-
-  }) ,AppJwtModule,AuthModuleModule,PostModule, BullModule.forRoot({
-    connection:{
-      host:"localhost",
-      port:6379
-    }
-  }) ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      cache: true,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'Simform@123',
+      database: 'SocialMedia',
+      entities: [UserDTO, PostDTO,ImageDTO,CommentDTO],
+      synchronize: true,
+    }),
+    AppJwtModule,
+    CacheModule.registerAsync({
+      useFactory:async () => ({
+        stores:[createKeyv('redis://localhost:6379')],
+        ttl:60*1000,
+      }),
+      isGlobal:true
+    }) , 
+    AuthModuleModule,
+    PostModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST', 'localhost'),
+          port: configService.get('REDIS_PORT', 6379),
+        },
+      }),
+    }),
+  ],
   controllers: [AppController],
-  providers: [AppService,UploadService],
+  providers: [AppService, UploadService ,
+  //   {
+  //   provide:APP_INTERCEPTOR,
+  //   useClass:CacheInterceptor
+  // }
+],
 })
-export class AppModule implements NestModule{
-   configure(consumer: MiddlewareConsumer) {
-     consumer.apply(AuthMiddleware).exclude({
-      path:"/auth/*path",method:RequestMethod.ALL
-     },{
-      path:"/auth/",method:RequestMethod.ALL
-     }).forRoutes("/");
-   }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        {
+          path: '/auth/*path',
+          method: RequestMethod.ALL,
+        },
+        {
+          path: '/auth/',
+          method: RequestMethod.ALL,
+        },
+      )
+      .forRoutes('/');
+  }
 }
-

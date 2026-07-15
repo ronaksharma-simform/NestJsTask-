@@ -23,4 +23,8 @@ export class CloudinaryService {
       folder: 'social-media/posts',
     };
   }
+  async uploadImage(path:string){
+    const fileUpload = await cloudinary.uploader.upload(path);
+    return fileUpload;
+  } 
 }

@@ -23,8 +23,12 @@ export class AppController {
 
   @Get(':id')
    @ApiBearerAuth('access-token')
-  getHello(@Param('id') id: string): string {
-    return id;
+  async getHello(@Param('id') id: string): Promise<string> {
+      return new Promise((resolve,reject)=>{
+        setTimeout(()=>{
+          resolve(`${Math.random()*100} - Number`)
+        },5000)
+      })
   }
 
   // @Post('upload')

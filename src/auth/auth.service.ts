@@ -20,12 +20,7 @@ export class AuthService {
   async getUser(id: string): Promise<UserDTO | null> {
     return this.userRepository.findOneBy({ id });
   }
-  async deleteUser(id: string): Promise<DeleteResult> {
-    return this.userRepository.delete({ id: id });
-  }
-  async getAllUser(): Promise<UserDTO[]> {
-    return this.userRepository.find();
-  }
+
   async loginUser(loginData:LoginUserDto ) : Promise<UserDTO> {
     console.log(loginData)
     const user = await this.userRepository.findOne({ where: { username: loginData.username } })

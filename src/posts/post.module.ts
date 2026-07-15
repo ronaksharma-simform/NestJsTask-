@@ -8,10 +8,15 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { CloudinaryService } from '../utils/cloudinary.service';
 import { ConfigModule } from '@nestjs/config';
-import {BullModule} from '@nestjs/bullmq'
+import { BullModule } from '@nestjs/bullmq';
+import ImageUploadConsumer from './image-upload.service';
+import { CloudinaryModule } from '../cloudinary /cloudinary.module';
+import { ImageService } from './image.service';
+import { ImageDTO } from './dto/image.dto';
+import { CommentDTO } from '../comments/dto/comment.dto';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserDTO, PostDTO]),
+    TypeOrmModule.forFeature([UserDTO, PostDTO,ImageDTO,CommentDTO]),
     ConfigModule,
     MulterModule.register({
       storage: diskStorage({
@@ -37,11 +42,15 @@ import {BullModule} from '@nestjs/bullmq'
       },
     }),
     BullModule.registerQueue({
-        name:"image-upload",
-        
-    })
+      name: 'image-upload',
+      // connection:{
+      //   host:"localhost",
+      //   port:6379
+      // },
+    }),
+    CloudinaryModule,
   ],
-  providers: [PostService,CloudinaryService],
+  providers: [PostService, CloudinaryService, ImageUploadConsumer, ImageService],
   controllers: [PostController],
   exports: [PostService],
 })

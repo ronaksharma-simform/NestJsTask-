@@ -21,7 +21,7 @@ import tr from 'zod/v4/locales/tr.js';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtService:JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   @Post('/')
@@ -41,15 +41,13 @@ export class AuthController {
       message: 'User SucessFully Created',
       user,
     };
-  }   
+  }
   @Post('/login')
   async loginUser(
-    @Body() loginData : LoginUserDto,
+    @Body() loginData: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.loginUser(
-      loginData
-    );
+    const user = await this.authService.loginUser(loginData);
     const accessToken = await this.jwtService.signAsync({
       id: user.id,
       username: user.username,
@@ -59,30 +57,6 @@ export class AuthController {
     });
     return {
       message: 'User Login SucessFully',
-      user,
-    };
-  }
-  @Delete('/:id')
-  async deleteUser(@Param('id') id: string) {
-    const user = await this.authService.deleteUser(id);
-    return {
-      message: 'User Deleted SucessFully',
-      user,
-    };
-  }
-  @Get('/user')
-  async getAllUser() {
-    const user = await this.authService.getAllUser();
-    return {
-      message: 'All User Data',
-      user,
-    };
-  }
-  @Get('/:id')
-  async getUser(@Param('id') id: string) {
-    const user = await this.authService.getUser(id);
-    return {
-      message: 'User Found ',
       user,
     };
   }
