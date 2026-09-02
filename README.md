@@ -25,6 +25,31 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+> This repository contains a NestJS **social-media API** (modules under `src/`:
+> `auth`, `posts`, `comments`, `jwt`, with cookie-based JWT auth, image uploads
+> through a BullMQ/Cloudinary queue, and Redis caching) plus a **React client**
+> under [`client/`](client/README.md).
+
+## Client application (React)
+
+A Vite + React + TypeScript frontend lives in [`client/`](client/README.md). It
+consumes the routes exposed by this NestJS API (`/auth`, `/post/*`), using the
+cookie-based `accessToken` session the backend sets on login/register.
+
+```bash
+# Terminal 1 — API (repository root)
+npm install
+npm run start:dev      # NestJS on http://localhost:3000 (needs Postgres + Redis)
+
+# Terminal 2 — client
+cd client
+npm install
+npm run dev            # Vite on http://localhost:5173, proxies /auth and /post
+```
+
+See [`client/README.md`](client/README.md) for the full API-surface mapping and
+notes about the backend limitations the UI works around.
+
 ## Project setup
 
 ```bash
