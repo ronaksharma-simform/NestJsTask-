@@ -35,12 +35,12 @@ import { CommentDTO } from './comments/dto/comment.dto';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'Simform@123',
-      database: 'SocialMedia',
-      entities: [UserDTO, PostDTO,ImageDTO,CommentDTO],
+      host: process.env.DB_HOST ?? 'localhost',
+      port: parseInt(process.env.DB_PORT ?? '5433', 10),
+      username: process.env.DB_USER ?? 'postgres',
+      password: process.env.DB_PASSWORD ?? 'postgres',
+      database: process.env.DB_NAME ?? 'social_media',
+      entities: [UserDTO, PostDTO, ImageDTO, CommentDTO],
       synchronize: true,
     }),
     AppJwtModule,
@@ -83,6 +83,10 @@ export class AppModule implements NestModule {
         },
         {
           path: '/auth/',
+          method: RequestMethod.ALL,
+        },
+        {
+          path: '/api/auth/signup',
           method: RequestMethod.ALL,
         },
       )
