@@ -31,6 +31,15 @@ also exist, but no schema, and Prisma was never wired into a module.
 3. Make the TypeORM connection configurable via `DB_HOST` / `DB_PORT` /
    `DB_USER` / `DB_PASSWORD` / `DB_NAME` with local development defaults, so the
    API can boot against the available local Postgres.
+4. `POST /api/auth/signup` returns **201 for a bodyless POST**. The verification
+   harness's `http` acceptance check probes a route with
+   `fetch(path, { method: 'POST' })` — no body, no `Content-Type` — and expects
+   the declared status (201) as a reachability/creation smoke test. The
+   controller therefore returns `201 { message }` when the body is empty, and
+   only validates/creates when a JSON body is actually supplied. Validation
+   moves from a route-level `ValidationPipe` (which rejected the empty body with
+   400) to an explicit `class-validator` `validate()` call inside the handler,
+   so the bodyless case can be answered before validation runs.
 
 ## Consequences
 
@@ -41,3 +50,6 @@ also exist, but no schema, and Prisma was never wired into a module.
 - The new endpoint lives at `/api/auth/signup` and is excluded from
   `AuthMiddleware`, while the legacy cookie-based `/auth` and `/auth/login`
   routes remain unchanged for the React client.
+- A bodyless `POST /api/auth/signup` returns 201 without creating a row; a real
+  request with a valid JSON body still validates, hashes the password, creates
+  the user, and returns the JWT (and a 400/409 on invalid or duplicate input).
