@@ -89,7 +89,8 @@
     "rootDir": ".",
     "testMatch": [
       "**/*.spec.ts",
-      "**/server/test/auth.e2e-spec.ts"
+      "**/server/test/auth.e2e-spec.ts",
+      "**/server/test/password-reset.e2e-spec.ts"
     ],
     "modulePathIgnorePatterns": [
       "/node_modules/",

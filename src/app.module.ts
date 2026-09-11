@@ -26,6 +26,7 @@ import { ImageDTO } from './posts/dto/image.dto';
 import {createKeyv} from '@keyv/redis'
 import {CacheModule,CacheInterceptor} from '@nestjs/cache-manager'
 import { CommentDTO } from './comments/dto/comment.dto';
+import { PasswordResetModule } from './auth/password-reset.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -52,6 +53,7 @@ import { CommentDTO } from './comments/dto/comment.dto';
       isGlobal:true
     }) , 
     AuthModuleModule,
+    PasswordResetModule,
     PostModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -87,6 +89,10 @@ export class AppModule implements NestModule {
         },
         {
           path: '/api/auth/signup',
+          method: RequestMethod.ALL,
+        },
+        {
+          path: '/api/auth/password-reset/*path',
           method: RequestMethod.ALL,
         },
       )

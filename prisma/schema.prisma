@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  username  String    @unique
-  email     String    @unique
-  password  String
-  isPrivate Boolean   @default(false) @map("is_private")
-  createdAt DateTime  @default(now()) @map("created_at")
-  deletedAt DateTime? @map("deleted_at")
+  id                  String    @id @default(uuid())
+  username            String    @unique
+  email               String    @unique
+  password            String
+  isPrivate           Boolean   @default(false) @map("is_private")
+  resetTokenHash      String?   @map("reset_token_hash")
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  deletedAt           DateTime? @map("deleted_at")
 
   @@map("users")
 }

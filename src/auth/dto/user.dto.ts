@@ -39,6 +39,16 @@ export class UserDTO {
   @Column({ default: false })
   is_private: boolean;
 
+  // Hash of the one-time password reset token (SHA-256 hex). Nullable because
+  // most users never request a reset. Mirrored in prisma/schema.prisma.
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true })
+  resetTokenHash: string | null;
+
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiresAt: Date | null;
+
   // "One" side of both relations - no FK column here. The foreign keys
   // (user_id) live on PostDTO and CommentDTO, since those are the "many"
   // side that actually points back to a user.
